@@ -30,15 +30,15 @@ function App() {
     setAgain(false);
     const optionsa = {
       method: "GET",
-      url: "http://deckofcardsapi.com/api/deck/ruo1x88ii1va/shuffle/",
+      url: "https://simpleapi-backend.herokuapp.com/cards-shuffle",
     };
 
     const embaralhar = await axios.request(optionsa);
 
     const options = {
       method: "GET",
-      url: "http://deckofcardsapi.com/api/deck/ruo1x88ii1va/draw/",
-      params: { count: "2" },
+      url: "https://simpleapi-backend.herokuapp.com/cards-draw/2",
+      
     };
 
     const carta = await axios.request(options);
@@ -105,8 +105,8 @@ function App() {
 
     const options = {
       method: "GET",
-      url: "http://deckofcardsapi.com/api/deck/ruo1x88ii1va/draw/",
-      params: { count: "1" },
+      url: "https://simpleapi-backend.herokuapp.com/cards-draw/1",
+     
     };
 
     let random = 16 + Math.floor(Math.random() * 4);
@@ -166,8 +166,8 @@ function App() {
     console.log("AQUI");
     const options = {
       method: "GET",
-      url: "http://deckofcardsapi.com/api/deck/ruo1x88ii1va/draw/",
-      params: { count: "1" },
+      url: "https://simpleapi-backend.herokuapp.com/cards-draw/1",
+     
     };
 
     const carta = await axios.request(options);
