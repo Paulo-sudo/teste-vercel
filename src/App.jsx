@@ -109,6 +109,10 @@ function App() {
   };
 
   const cpu = async (numero) => {
+    if(disableCpu){
+      return false
+    }
+    console.log("AQUIerro", disableCpu);
     setDisableCpu(true)
     let num = 0;
 
@@ -195,6 +199,9 @@ function App() {
   };
 
   const descarte = async () => {
+    if(disableCpu){
+      return false
+    }
     const options = {
       method: "GET",
       url: "https://simpleapi-backend.herokuapp.com/cards-draw/1",
@@ -209,6 +216,9 @@ function App() {
   };
 
   const getCartas = async () => {
+    if(disableCpu){
+      return false
+    }
     console.log("AQUI");
     const options = {
       method: "GET",
@@ -291,7 +301,8 @@ function App() {
               <label className="text-blue-900 text-[20px]">{placarCpu}</label>
             </label>
             <button
-              className=" ml-4 bg-red-500 text-sm  text-white p-1 absolute font-bold rounded-md"
+            disabled={disable}
+              className={disable ? " ml-4 bg-red-200 text-sm  text-white p-1 absolute font-bold rounded-md":" ml-4 bg-red-500 text-sm  text-white p-1 absolute font-bold rounded-md"}
               onClick={zerar}
             >
               ZERAR PLACAR
@@ -316,9 +327,9 @@ function App() {
                 <label className="text-green-800">{remaining}</label>{" "}
               </p>
               <button
-                disabled={!disable || remaining < 32}
+                disabled={!disable || remaining < 32 || disableCpu}
                 className={
-                  !disable || remaining < 32
+                  !disable || remaining < 32 || disableCpu
                     ? " ml-4 bg-gray-200 text-sm text-white p-2 font-bold rounded-md"
                     : " ml-4 bg-yellow-500 text-sm text-white p-2 font-bold rounded-md"
                 }
