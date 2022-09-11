@@ -16,11 +16,12 @@ function App() {
   const [disable, setDisable] = useState(false);
   const [cardOut, setCardOut] = useState([]);
   const [loading, setLoading] = useState(false)
+  const [disableCpu, setDisableCpu]=useState(false)
 
   const iniciar = async () => {
     
       setLoading(true)
-    
+      setDisableCpu(false)
     setDisable(true);
     setCardOut([]);
     setCardsCpu([]);
@@ -90,6 +91,7 @@ function App() {
   };
 
   const zerar = () => {
+    setDisableCpu(false)
     setDisable(false);
     setCardOut([]);
     setCardsCpu([]);
@@ -107,6 +109,7 @@ function App() {
   };
 
   const cpu = async (numero) => {
+    setDisableCpu(true)
     let num = 0;
 
     const array = [];
@@ -148,6 +151,7 @@ function App() {
           }
         });
       }
+      
     }
 
     setCardsCpu(array);
@@ -157,12 +161,14 @@ function App() {
     if (numero > 21 && num > 21) {
       console.log("primeiro", numero, num);
       setAgain(true);
+      await delay(800);
       setDisable(false);
       return;
     } else if (numero > 21 && num < 22) {
       console.log("segundo", numero, num);
       setLose(true);
       setPlacarCpu(placarCpu + 1);
+      await delay(800);
       setDisable(false);
       return;
     }
@@ -171,15 +177,18 @@ function App() {
       console.log("terceiro", numero, num);
       setWin(true);
       setPlacar(placar + 1);
+      await delay(800);
       setDisable(false);
     } else if (numero == num) {
       console.log("quarto", numero, num);
       setAgain(true);
+      await delay(800);
       setDisable(false);
     } else {
       console.log("quinto", numero, num);
       setLose(true);
       setPlacarCpu(placarCpu + 1);
+      await delay(800);
       setDisable(false);
     }
     console.log(num);
@@ -260,6 +269,7 @@ function App() {
     if (num == 21) {
       setWin(true);
       setPlacar(placar + 1);
+      await delay(800);
       setDisable(false);
     }
   };
@@ -345,9 +355,9 @@ function App() {
                 <label className="text-green-800 text-[26px]">{valor}</label>
               </p>
               <button
-                disable={valor > 21}
+                disable={valor > 21 || disableCpu}
                 className={
-                  valor > 21
+                  valor > 21 || disableCpu
                     ? "ml-4 mt-2 p-2 bg-indigo-200 text-white  font-bold rounded-md"
                     : "ml-4 mt-2 p-2 bg-indigo-500 text-white  font-bold rounded-md"
                 }
@@ -356,9 +366,9 @@ function App() {
                 NOVA CARTA
               </button>
               <button
-                disable={valor > 21}
+                disable={valor > 21 || disableCpu}
                 className={
-                  valor > 21
+                  valor > 21 || disableCpu
                     ? "ml-4 mt-2 p-2 bg-green-200 text-white  font-bold rounded-md"
                     : "ml-4 mt-2 p-2 bg-green-500 text-white  font-bold rounded-md"
                 }
