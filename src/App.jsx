@@ -253,6 +253,7 @@ function App() {
     }
 
     if (num > 21) {
+      setDisableCpu(true)
       let ace = false;
       try {
         
@@ -271,6 +272,7 @@ function App() {
         cpu(num);
       } else {
         setValor(num - 9);
+        setDisableCpu(false)
         num -= 9;
       }
     }
