@@ -14,10 +14,11 @@ function App() {
   const [placar, setPlacar] = useState(0);
   const [placarCpu, setPlacarCpu] = useState(0);
   const [disable, setDisable] = useState(false);
+  const [cardOut, setCardOut] = useState([]);
 
   const iniciar = async () => {
     setDisable(true);
-
+    setCardOut([]);
     setCardsCpu([]);
     setValorCpu(0);
     console.log("AQUI", cards);
@@ -38,7 +39,6 @@ function App() {
     const options = {
       method: "GET",
       url: "https://simpleapi-backend.herokuapp.com/cards-draw/2",
-      
     };
 
     const carta = await axios.request(options);
@@ -85,6 +85,7 @@ function App() {
 
   const zerar = () => {
     setDisable(false);
+    setCardOut([]);
     setCardsCpu([]);
     setValorCpu(0);
     console.log("AQUI", cards);
@@ -99,19 +100,19 @@ function App() {
     setPlacarCpu(0);
   };
 
-  const cpu = async () => {
+  const cpu = async (numero) => {
     let num = 0;
+
     const array = [];
 
     const options = {
       method: "GET",
       url: "https://simpleapi-backend.herokuapp.com/cards-draw/1",
-     
     };
 
     let random = 16 + Math.floor(Math.random() * 4);
-    if (valor < 18) {
-      random = valor;
+    if (numero < 18) {
+      random = numero;
     }
     console.log("[random]", random);
 
@@ -146,15 +147,31 @@ function App() {
     setCardsCpu(array);
     setValorCpu(num);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    await delay(1000);
-    if (valor > num || num > 21) {
+    await delay(1500);
+    if (numero > 21 && num > 21) {
+      console.log("primeiro", numero, num);
+      setAgain(true);
+      setDisable(false);
+      return;
+    } else if (numero > 21 && num < 22) {
+      console.log("segundo", numero, num);
+      setLose(true);
+      setPlacarCpu(placarCpu + 1);
+      setDisable(false);
+      return;
+    }
+
+    if (numero > num || num > 21) {
+      console.log("terceiro", numero, num);
       setWin(true);
       setPlacar(placar + 1);
       setDisable(false);
-    } else if (valor == num) {
+    } else if (numero == num) {
+      console.log("quarto", numero, num);
       setAgain(true);
       setDisable(false);
     } else {
+      console.log("quinto", numero, num);
       setLose(true);
       setPlacarCpu(placarCpu + 1);
       setDisable(false);
@@ -162,12 +179,25 @@ function App() {
     console.log(num);
   };
 
+  const descarte = async () => {
+    const options = {
+      method: "GET",
+      url: "https://simpleapi-backend.herokuapp.com/cards-draw/1",
+    };
+
+    const carta = await axios.request(options);
+
+    const array = cardOut;
+    array.push(carta.data.cards[0]);
+    setCardOut(array);
+    setRemaining(carta.data.remaining);
+  };
+
   const getCartas = async () => {
     console.log("AQUI");
     const options = {
       method: "GET",
       url: "https://simpleapi-backend.herokuapp.com/cards-draw/1",
-     
     };
 
     const carta = await axios.request(options);
@@ -207,13 +237,13 @@ function App() {
       });
       await delay(1000);
       if (!ace) {
-        setLose(true);
-        setPlacarCpu(placarCpu + 1);
-        setDisable(false);
+        cpu(num);
       } else {
         setValor(num - 9);
+        num -= 9;
       }
     }
+
     await delay(1000);
     if (num == 21) {
       setWin(true);
@@ -223,121 +253,175 @@ function App() {
   };
 
   return (
-    <div className="bg-green-600 fixed w-full h-full pt-8">
-      <div className="w-[94%] bg-white max-w-[400px] h-[600px] shadow-md shadow-green-800 rounded-md p-2 mx-auto ">
-        <p className="text-center font-bold text-black-600 mt-2 text-[38px]">
-          BLACKJACK
-        </p>
-        <div className="text-center">
-          <label className=" text-center font-semibold text-slate-600">
-            PLAYER:{" "}
-            <label className="text-blue-900 text-[26px]">{placar}</label>
-          </label>
-          <label className="ml-4 text-center font-semibold text-slate-600">
-            CPU:{" "}
-            <label className="text-blue-900 text-[26px]">{placarCpu}</label>
-          </label>
-          <button
-            className=" ml-4 bg-red-500 text-white p-2 font-bold rounded-md"
-            onClick={zerar}
-          >
-            ZERAR
-          </button>
-        </div>
-        <button
-          disabled={disable}
-          className={
-            disable
-              ? "mt-4 mb-2 ml-4 bg-blue-200 text-white p-2 font-bold rounded-md"
-              : "mt-4 mb-2 ml-4 bg-blue-500 text-white p-2 font-bold rounded-md"
-          }
-          onClick={iniciar}
-        >
-          {placar || placarCpu ? "CONTINUAR" : "INICIAR"}
-        </button>
-
-        <p className="ml-6 text-left font-semibold text-slate-600">
-          CARTAS RESTANTES:{" "}
-          <label className="text-green-800">{remaining}</label>{" "}
-        </p>
-
-        <div className="flex mt-4 ml-20">
-          {cards.map((e) => {
-            return (
-              <div className="-ml-16">
-                <img width={"80px"} src={e.image} />
-              </div>
-            );
-          })}
-        </div>
-        {cards.length > 0 && (
-          <div className="flex">
-            <p className="ml-6 mt-4 text-left font-semibold text-slate-600 ">
+    <div className="bg-green-600 fixed w-full h-full pt-6">
+      <div className="w-[94%] flex-col bg-white max-w-[400px] h-[600px] shadow-md shadow-green-800 rounded-md p-2 mx-auto ">
+        <div>
+          <p className="text-center font-bold text-black-600 mt-2 text-[38px]">
+            BLACKJACK
+          </p>
+          <div className="text-left ml-4">
+            <label className=" text-center font-semibold text-slate-600">
               PLAYER:{" "}
-              <label className="text-green-800 text-[26px]">{valor}</label>
-            </p>
+              <label className="text-blue-900 text-[20px]">{placar}</label>
+            </label>
+            <label className="ml-2 text-center font-semibold text-slate-600">
+              CPU:{" "}
+              <label className="text-blue-900 text-[20px]">{placarCpu}</label>
+            </label>
             <button
-              className="ml-4 mt-4 p-2 bg-indigo-500 text-white  font-bold rounded-md"
-              onClick={getCartas}
+              className=" ml-4 bg-red-500 text-sm  text-white p-1 absolute font-bold rounded-md"
+              onClick={zerar}
             >
-              NOVA CARTA
-            </button>
-            <button
-              className="ml-4 mt-4 p-2 bg-green-500 text-white  font-bold rounded-md"
-              onClick={cpu}
-            >
-              OK
+              ZERAR PLACAR
             </button>
           </div>
-        )}
+          <div className="flex mt-2 justify-between">
+            <button
+              disabled={disable}
+              className={
+                disable
+                  ? "mt-4 mb-2 ml-4 bg-blue-200 text-sm pt-3 text-white p-2 font-bold rounded-md"
+                  : "mt-4 mb-2 ml-4 bg-blue-500 text-sm pt-3 text-white p-2 font-bold rounded-md"
+              }
+              onClick={iniciar}
+            >
+              {placar || placarCpu ? "CONTINUAR" : "INICIAR"}
+            </button>
 
-        <div className="flex mt-4 ml-20">
-          {cardsCpu.map((e) => {
-            return (
-              <>
+            <div className=" mr-2">
+              <p className="ml-6 text-left text-sm font-semibold text-slate-600">
+                CARTAS BARALHO:{" "}
+                <label className="text-green-800">{remaining}</label>{" "}
+              </p>
+              <button
+                disabled={!disable || remaining < 32}
+                className={
+                  !disable || remaining < 32
+                    ? " ml-4 bg-gray-200 text-sm text-white p-2 font-bold rounded-md"
+                    : " ml-4 bg-yellow-500 text-sm text-white p-2 font-bold rounded-md"
+                }
+                onClick={descarte}
+              >
+                DESCARTAR PROXIMA
+              </button>
+            </div>
+          </div>
+
+          <div className="flex mt-1 ml-20">
+            {cards.map((e) => {
+              return (
                 <div className="-ml-16">
                   <img width={"80px"} src={e.image} />
+                </div>
+              );
+            })}
+          </div>
+          {cards.length > 0 && (
+            <div className="flex">
+              <p className="ml-6 mt-2 text-left font-semibold text-slate-600 ">
+                PLAYER:{" "}
+                <label className="text-green-800 text-[26px]">{valor}</label>
+              </p>
+              <button
+                disable={valor > 21}
+                className={
+                  valor > 21
+                    ? "ml-4 mt-2 p-2 bg-indigo-200 text-white  font-bold rounded-md"
+                    : "ml-4 mt-2 p-2 bg-indigo-500 text-white  font-bold rounded-md"
+                }
+                onClick={getCartas}
+              >
+                NOVA CARTA
+              </button>
+              <button
+                disable={valor > 21}
+                className={
+                  valor > 21
+                    ? "ml-4 mt-2 p-2 bg-green-200 text-white  font-bold rounded-md"
+                    : "ml-4 mt-2 p-2 bg-green-500 text-white  font-bold rounded-md"
+                }
+                onClick={() => {
+                  cpu(valor);
+                }}
+              >
+                OK
+              </button>
+            </div>
+          )}
+
+          <div className="flex mt-2 ml-20">
+            {cardsCpu.map((e) => {
+              return (
+                <>
+                  <div className="-ml-16">
+                    <img width={"80px"} src={e.image} />
+                  </div>
+                </>
+              );
+            })}
+          </div>
+
+          {cardsCpu.length > 0 && (
+            <p className="ml-6 mt-2 text-left font-semibold text-slate-600 mb-8">
+              CPU:{" "}
+              <label className="text-green-800 text-[26px]">{valorCpu}</label>
+            </p>
+          )}
+          {lose && (
+            <div className="fixed opacity-75">
+              <img
+                style={{
+                  maxWidth: "400px",
+                  marginLeft: "-6px",
+                  marginRight: "",
+                }}
+                width={"98%"}
+                className={cardsCpu.length ? "-mt-[360px]" : "-mt-[170px] "}
+                src="https://c.tenor.com/kRYmL5XfwzMAAAAC/miggi-you-lose.gif"
+              ></img>
+            </div>
+          )}
+          {win && (
+            <div className="fixed opacity-75">
+              <img
+                style={{
+                  maxWidth: "400px",
+                  marginLeft: "-6px",
+                  marginRight: "",
+                }}
+                width={"98%"}
+                className={cardsCpu.length ? "-mt-[360px]" : "-mt-[170px] "}
+                src="https://c.tenor.com/h3w4fXXdDLkAAAAd/miggi-you-win.gif"
+              ></img>
+            </div>
+          )}
+          {again && (
+            <div className="fixed opacity-75">
+              <img
+                style={{
+                  maxWidth: "450px",
+                  marginLeft: "30px",
+                  marginRight: "",
+                }}
+                width={"98%"}
+                className={cardsCpu.length ? "-mt-[320px]" : "-mt-[130px] "}
+                src="https://www.brilliantmaths.com/wp-content/uploads/2020/04/retry.gif"
+              ></img>
+            </div>
+          )}
+        </div>
+
+        <div className=" fixed bottom-5 right-2 flex mt-4 ">
+          {cardOut.map((e) => {
+            return (
+              <>
+                <div className="-ml-16 grayscale">
+                  <img width={"50px"} src={e.image} />
                 </div>
               </>
             );
           })}
         </div>
-        {cardsCpu.length > 0 && (
-          <p className="ml-6 mt-4 text-left font-semibold text-slate-600 mb-8">
-            CPU:{" "}
-            <label className="text-green-800 text-[26px]">{valorCpu}</label>
-          </p>
-        )}
-        {lose && (
-          <div className="fixed opacity-75">
-            <img
-              style={{ maxWidth: "400px", marginLeft: "-3px", marginRight: "" }}
-              width={"98%"}
-              className={cardsCpu.length ? "-mt-[420px]" : "-mt-[190px] "}
-              src="https://c.tenor.com/kRYmL5XfwzMAAAAC/miggi-you-lose.gif"
-            ></img>
-          </div>
-        )}
-        {win && (
-          <div className="fixed opacity-75">
-            <img
-              style={{ maxWidth: "400px", marginLeft: "-3px", marginRight: "" }}
-              width={"98%"}
-              className={cardsCpu.length ? "-mt-[420px]" : "-mt-[190px] "}
-              src="https://c.tenor.com/h3w4fXXdDLkAAAAd/miggi-you-win.gif"
-            ></img>
-          </div>
-        )}
-        {again && (
-          <div className="fixed opacity-75">
-            <img
-              style={{ maxWidth: "450px", marginLeft: "40px", marginRight: "" }}
-              width={"98%"}
-              className={cardsCpu.length ? "-mt-[380px]" : "-mt-[150px] "}
-              src="https://www.brilliantmaths.com/wp-content/uploads/2020/04/retry.gif"
-            ></img>
-          </div>
-        )}
       </div>
     </div>
   );
