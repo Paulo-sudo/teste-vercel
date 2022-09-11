@@ -214,11 +214,12 @@ function App() {
     setCardOut(array);
     setRemaining(carta.data.remaining);
   };
-
+  
   const getCartas = async () => {
     if(disableCpu){
       return false
     }
+    setDisableCpu(true)
     console.log("AQUI");
     const options = {
       method: "GET",
@@ -253,7 +254,6 @@ function App() {
     }
 
     if (num > 21) {
-      setDisableCpu(true)
       let ace = false;
       try {
         
@@ -272,7 +272,7 @@ function App() {
         cpu(num);
       } else {
         setValor(num - 9);
-        setDisableCpu(false)
+        
         num -= 9;
       }
     }
@@ -284,6 +284,7 @@ function App() {
       await delay(800);
       setDisable(false);
     }
+    setDisableCpu(false)
   };
 
   return (
