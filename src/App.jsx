@@ -15,8 +15,12 @@ function App() {
   const [placarCpu, setPlacarCpu] = useState(0);
   const [disable, setDisable] = useState(false);
   const [cardOut, setCardOut] = useState([]);
+  const [loading, setLoading] = useState(false)
 
   const iniciar = async () => {
+    
+      setLoading(true)
+    
     setDisable(true);
     setCardOut([]);
     setCardsCpu([]);
@@ -42,6 +46,7 @@ function App() {
     };
 
     const carta = await axios.request(options);
+    
     let returnImg = img;
     returnImg =
       returnImg +
@@ -52,6 +57,7 @@ function App() {
     array.push(carta.data.cards[1]);
     setCards(array);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    setLoading(false)
     await delay(500);
     let num = 0;
     if (
@@ -229,12 +235,18 @@ function App() {
 
     if (num > 21) {
       let ace = false;
-      cards.forEach((e) => {
-        if (e.value == "ACE") {
-          ace = true;
-          e.value = "ACEU";
-        }
-      });
+      try {
+        
+        cards.forEach((e) => {
+          if (e.value == "ACE") {
+            ace = true;
+            e.value = "ACEU";
+            throw new Exception("Time to end the loop");
+          }
+        });
+      } catch (error) {
+        console.log("AQUI");
+      }
       await delay(1000);
       if (!ace) {
         cpu(num);
@@ -307,6 +319,7 @@ function App() {
             </div>
           </div>
 
+
           <div className="flex mt-1 ml-20">
             {cards.map((e) => {
               return (
@@ -316,7 +329,16 @@ function App() {
               );
             })}
           </div>
-          {cards.length > 0 && (
+          {loading   &&(
+
+
+<div className=" p-8">
+
+<img className="mx-auto" width={"50px"} src="https://i.gifer.com/origin/b4/b4d657e7ef262b88eb5f7ac021edda87.gif" alt="" />
+</div>
+         
+          )}
+          {valor > 0 && (
             <div className="flex">
               <p className="ml-6 mt-2 text-left font-semibold text-slate-600 ">
                 PLAYER:{" "}
