@@ -366,7 +366,7 @@ function App() {
                 <label className="text-green-800 text-[26px]">{valor}</label>
               </p>
               <button
-                disable={valor > 21 || disableCpu}
+                disabled={valor > 21 || disableCpu}
                 className={
                   valor > 21 || disableCpu
                     ? "ml-4 mt-2 p-2 bg-indigo-200 text-white  font-bold rounded-md"
@@ -377,7 +377,7 @@ function App() {
                 NOVA CARTA
               </button>
               <button
-                disable={valor > 21 || disableCpu}
+                disabled={valor > 21 || disableCpu}
                 className={
                   valor > 21 || disableCpu
                     ? "ml-4 mt-2 p-2 bg-green-200 text-white  font-bold rounded-md"
